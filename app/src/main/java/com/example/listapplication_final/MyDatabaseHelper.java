@@ -1,0 +1,256 @@
+package com.example.listapplication_final;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+
+import java.sql.Blob;
+import java.util.ArrayList;
+import java.util.List;
+
+
+public class MyDatabaseHelper extends SQLiteOpenHelper {
+
+
+    private static final String DATABASE_NAME ="List.db";
+    private static final int DATABASE_VERSION =2;
+
+    private static final String TAGS= "TAGS";;
+    private Context context;
+    public MyDatabaseHelper(@NonNull Context context)
+    {
+        super(context,DATABASE_NAME,null,DATABASE_VERSION);
+        this.context = context;
+    }
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+
+        String query1 = "CREATE TABLE IF NOT EXISTS TAGS " +
+                "(   ID INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "    NAME VARCHAR(30) UNIQUE NOT NULL);";
+
+        String query2 =
+                "CREATE TABLE IF NOT EXISTS DATA" +
+                        "(" +
+                        "    ID INTEGER PRIMARY KEY AUTOINCREMENT," +
+                        "    TITLE VARCHAR(50)," +
+                        "    DESCRIPTION VARCHAR(500)," +
+                        "    CREATION_TIME DATE," +
+                        "    EXECUTION_TIME DATE," +
+                        "    STATUS INTEGER," +
+                        "    NOTIFICATIONS INTEGER," +
+                        "    CATEGORY_ID INTEGER," +
+                        "    IMAGE BLOB);";
+        String query3 =
+                "CREATE TABLE IF NOT EXISTS ATTACHMENTS" +
+                        "(" +
+                        "    ID INTEGER PRIMARY KEY AUTOINCREMENT," +
+                        "    DATA_ID INTEGER," +
+                        "    PATH VARCHAR(50));";
+        db.execSQL(query1);
+        db.execSQL(query2);
+        db.execSQL(query3);
+
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
+        if(oldVersion<newVersion)
+        {
+            db.execSQL("DROP TABLE IF EXISTS ATTACHMENTS;");
+            db.execSQL("DROP TABLE IF EXISTS DATA;");
+            db.execSQL("DROP TABLE IF EXISTS TAGS;");
+            onCreate(db);
+        }
+    }
+
+
+    void addTag(String tag)
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("NAME",tag.trim().toUpperCase());
+        // not valid error
+        try {
+            db.insertOrThrow("TAGS",null,values);
+        }catch (Exception e){};
+    }
+
+    void printTags()
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM TAGS",null);
+        while (cursor.moveToNext())
+        {
+            String item = cursor.getString(cursor.getColumnIndexOrThrow("NAME"));
+            Log.wtf("test", item);
+        }
+        cursor.close();
+    }
+
+    int getTagID(String tagName) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT ID FROM TAGS WHERE NAME =\"" + tagName.toUpperCase()+"\"", null);
+        if (cursor.moveToFirst()) {
+            int tagId = cursor.getInt(cursor.getColumnIndexOrThrow("ID"));
+            return tagId;
+        }
+        cursor.close();
+        return -1;
+    }
+    public String getTagName(int id)
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM TAGS WHERE ID="+ id ,null);
+        String item = null;
+        if (cursor.moveToNext())
+        {
+            item = cursor.getString(cursor.getColumnIndexOrThrow("NAME"));
+            Log.wtf("test", item);
+        }
+        cursor.close();
+        return item;
+    }
+
+
+
+
+
+    public  ArrayList<Integer> getTagsID()
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM TAGS",null);
+        ArrayList<Integer> tags_id = new ArrayList<Integer>();
+        while (cursor.moveToNext())
+        {
+            Integer tag_id = cursor.getInt(cursor.getColumnIndexOrThrow("ID"));
+            String item = cursor.getString(cursor.getColumnIndexOrThrow("NAME"));
+            Log.wtf("test", "LOG: " + tag_id + "   tag_name:" + item);
+            tags_id.add(tag_id);
+        }
+
+
+        cursor.close();
+        return tags_id;
+    }
+
+
+    public long addData(DataModel data)
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("TITLE", data.getTitle());
+        values.put("DESCRIPTION", data.getDescription());
+        values.put("CREATION_TIME", data.getCreationTime());
+        values.put("EXECUTION_TIME", data.getExecutionTime());
+        values.put("STATUS", data.getFinished());
+        values.put("NOTIFICATIONS", data.getNotifications());
+        values.put("CATEGORY_ID", data.getCategoryId());
+        values.put("IMAGE",data.getImage());
+        long id = db.insert("DATA", null, values);
+        db.close();
+        return id;
+    }
+
+    public void addAttachments(List<String> paths, long data_id)
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        for(String path:paths)
+        {
+            ContentValues values = new ContentValues();
+            values.put("DATA_ID", data_id);
+            values.put("PATH", path);
+            long id = db.insert("ATTACHMENTS", null, values);
+        }
+        db.close();
+    }
+    public List<DataModel> getTaskList()
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM DATA",null);
+        List<DataModel> list = new ArrayList<>();
+        while (cursor.moveToNext())
+        {
+            int id = cursor.getInt(cursor.getColumnIndexOrThrow("ID"));
+            String title = cursor.getString(cursor.getColumnIndexOrThrow("TITLE"));
+            String description = cursor.getString(cursor.getColumnIndexOrThrow("DESCRIPTION"));
+            String creationTime = cursor.getString(cursor.getColumnIndexOrThrow("CREATION_TIME"));
+            String executionTime = cursor.getString(cursor.getColumnIndexOrThrow("EXECUTION_TIME"));
+            Integer status = cursor.getInt(cursor.getColumnIndexOrThrow("STATUS"));
+            Integer notifications = cursor.getInt(cursor.getColumnIndexOrThrow("NOTIFICATIONS"));
+            Integer categoryId = cursor.getInt(cursor.getColumnIndexOrThrow("CATEGORY_ID"));
+            byte[] image=  cursor.getBlob(cursor.getColumnIndexOrThrow("IMAGE"));
+
+            DataModel data = new DataModel(id, title,description,creationTime,executionTime,
+                    status> 0, notifications>0, categoryId,image);
+
+
+            list.add(data);
+            /*
+            Log.wtf("test", title);
+            Log.wtf("test", description);
+            Log.wtf("test", creationTime);
+            Log.wtf("test", executionTime);
+            Log.wtf("test", status);
+            Log.wtf("test", notifications);
+            Log.wtf("test", String.valueOf(categoryId));*/
+
+        }
+        cursor.close();
+        return list;
+    }
+
+    public ArrayList<String> getAttachmentsList(long id)
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM ATTACHMENTS where DATA_ID= "+id,null);
+        ArrayList<String> list = new ArrayList<>();
+        while (cursor.moveToNext())
+        {
+            String path = cursor.getString(cursor.getColumnIndexOrThrow("PATH"));
+            list.add(path);
+        }
+        cursor.close();
+        return list;
+    }
+
+    public void  printAttachments()
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM ATTACHMENTS",null);
+        while (cursor.moveToNext())
+        {
+            String path = cursor.getString(cursor.getColumnIndexOrThrow("PATH"));
+            Log.wtf("PATH", path );
+        }
+        cursor.close();
+    }
+
+
+    public void updateDataImage(int id, byte [] image)
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put("IMAGE", image);
+
+        // on below line we are calling a update method to update our database and passing our values.
+        // and we are comparing it with name of our course which is stored in original name variable.
+        db.update("DATA", values, "id=?", new String[]{Integer.toString(id)});
+        db.close();
+    }
+    public void deleteAllData()
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete("TAGS", null, null);
+        db.delete("DATA", null, null);
+        db.delete("ATTACHMENTS", null, null);
+        db.close();
+    }
+}

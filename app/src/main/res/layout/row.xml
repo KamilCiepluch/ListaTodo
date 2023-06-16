@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:srcCompat="@tools:sample/avatars" />
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/title"
+                android:textSize="38sp"
+                app:layout_constraintBottom_toTopOf="@id/description"
+                app:layout_constraintEnd_toStartOf="@+id/imageView"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/description"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="18sp"
+                android:text="@string/description"
+                app:layout_constraintEnd_toStartOf="@+id/imageView"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/title" />
+
+
+
+
+            <TextView
+                android:id="@+id/creation_timeLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/creation_timeLabel"
+                android:gravity="center"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toStartOf="@+id/creation_time"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/description" />
+
+            <TextView
+                android:id="@+id/creation_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/creation_time"
+                android:gravity="center"
+                android:textSize="18sp"
+                app:layout_constraintTop_toBottomOf="@id/description"
+                app:layout_constraintEnd_toStartOf="@+id/imageView"
+                app:layout_constraintStart_toEndOf="@id/creation_timeLabel" />
+
+            <TextView
+                android:id="@+id/execution_timeLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/execution_timeLabel"
+                android:gravity="center"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toStartOf="@+id/execution_time"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/creation_time" />
+
+
+            <TextView
+                android:id="@+id/execution_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/execution_time"
+                android:gravity="center"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toStartOf="@+id/imageView"
+                app:layout_constraintStart_toEndOf="@id/execution_timeLabel"
+                app:layout_constraintTop_toBottomOf="@+id/creation_time" />
+
+
+
+            <TextView
+                android:id="@+id/category"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/category"
+                android:gravity="center"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toStartOf="@+id/categoryTag"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/execution_time" />
+
+            <TextView
+                android:id="@+id/categoryTag"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toStartOf="@+id/imageView"
+                app:layout_constraintStart_toEndOf="@id/category"
+                app:layout_constraintTop_toBottomOf="@+id/execution_time" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/status"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/status"
+                android:textSize="20sp"
+                android:gravity="center"
+                app:layout_constraintEnd_toStartOf="@+id/imageView"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/category" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/notifications"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/notifications"
+                android:textSize="20sp"
+                android:gravity="center"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/imageView"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/status" />
+
+
+            <ListView
+                android:id="@+id/attachments"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/imageView"
+                app:layout_constraintTop_toBottomOf="@+id/imageView" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>
