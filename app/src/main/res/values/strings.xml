@@ -7,10 +7,14 @@
     <string name="creation_timeLabel">Created: </string>
     <string name="execution_timeLabel">Execution: </string>
 
-    <string name="status">Finished: </string>
+    <string name="statusLabel">Status </string>
     <string name="notifications">Notifications: </string>
-    <string name="category">category: </string>
+    <string name="category">Category: </string>
     <string name="addImageButton">Add Image </string>
     <string name="addFile">Add File: </string>
     <string name="save">Save: </string>
+    <string name="statusF"> finished</string>
+    <string name="statusN"> active</string>
+    <string name="notificationsOn"> on </string>
+    <string name="notificationsOff"> off </string>
 </resources>

@@ -104,6 +104,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         return -1;
     }
+
     public String getTagName(int id)
     {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -130,14 +131,25 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         while (cursor.moveToNext())
         {
             Integer tag_id = cursor.getInt(cursor.getColumnIndexOrThrow("ID"));
-            String item = cursor.getString(cursor.getColumnIndexOrThrow("NAME"));
-            Log.wtf("test", "LOG: " + tag_id + "   tag_name:" + item);
             tags_id.add(tag_id);
         }
-
-
         cursor.close();
         return tags_id;
+    }
+
+
+    public ArrayList<String> getTagsNames()
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM TAGS",null);
+        ArrayList<String> tags = new ArrayList<>();
+        while (cursor.moveToNext())
+        {
+            String item = cursor.getString(cursor.getColumnIndexOrThrow("NAME"));
+            tags.add(item);
+        }
+        cursor.close();
+        return tags;
     }
 
 
@@ -158,6 +170,23 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         return id;
     }
 
+    public long updateData(DataModel data)
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("TITLE", data.getTitle());
+        values.put("DESCRIPTION", data.getDescription());
+        values.put("CREATION_TIME", data.getCreationTime());
+        values.put("EXECUTION_TIME", data.getExecutionTime());
+        values.put("STATUS", data.getFinished());
+        values.put("NOTIFICATIONS", data.getNotifications());
+        values.put("CATEGORY_ID", data.getCategoryId());
+        values.put("IMAGE",data.getImage());
+        long id = db.update("DATA", values,"ID=?" ,new String[]{String.valueOf(data.getPrimaryKey())});
+        db.close();
+        return id;
+    }
+
     public void addAttachments(List<String> paths, long data_id)
     {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -167,6 +196,18 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
             values.put("DATA_ID", data_id);
             values.put("PATH", path);
             long id = db.insert("ATTACHMENTS", null, values);
+        }
+        db.close();
+    }
+
+    public void updateAttachments(List<String> paths, long data_id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete("ATTACHMENTS", "DATA_ID=?",new String[]{String.valueOf(data_id)});
+        for (String path : paths) {
+            ContentValues values = new ContentValues();
+            values.put("DATA_ID", data_id);
+            values.put("PATH", path);
+            db.insert("ATTACHMENTS", null, values);
         }
         db.close();
     }
@@ -192,18 +233,35 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 
 
             list.add(data);
-            /*
-            Log.wtf("test", title);
-            Log.wtf("test", description);
-            Log.wtf("test", creationTime);
-            Log.wtf("test", executionTime);
-            Log.wtf("test", status);
-            Log.wtf("test", notifications);
-            Log.wtf("test", String.valueOf(categoryId));*/
-
         }
         cursor.close();
         return list;
+    }
+
+
+    public DataModel getTask(Long taskID)
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM DATA WHERE ID=" +taskID ,null);
+        DataModel result = null;
+        while (cursor.moveToNext())
+        {
+            int id = cursor.getInt(cursor.getColumnIndexOrThrow("ID"));
+            String title = cursor.getString(cursor.getColumnIndexOrThrow("TITLE"));
+            String description = cursor.getString(cursor.getColumnIndexOrThrow("DESCRIPTION"));
+            String creationTime = cursor.getString(cursor.getColumnIndexOrThrow("CREATION_TIME"));
+            String executionTime = cursor.getString(cursor.getColumnIndexOrThrow("EXECUTION_TIME"));
+            Integer status = cursor.getInt(cursor.getColumnIndexOrThrow("STATUS"));
+            Integer notifications = cursor.getInt(cursor.getColumnIndexOrThrow("NOTIFICATIONS"));
+            Integer categoryId = cursor.getInt(cursor.getColumnIndexOrThrow("CATEGORY_ID"));
+            byte[] image=  cursor.getBlob(cursor.getColumnIndexOrThrow("IMAGE"));
+
+             result = new DataModel(id, title,description,creationTime,executionTime,
+                    status> 0, notifications>0, categoryId,image);
+
+        }
+        cursor.close();
+        return result;
     }
 
     public ArrayList<String> getAttachmentsList(long id)

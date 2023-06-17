@@ -64,8 +64,10 @@ public class AddTaskActivity extends Activity {
         creationTime.setText(currentDate +" " + currentTime);
 
         Spinner tagsSpinner = findViewById(R.id.categorySpinner);
-        //todo change it
-        String [] tags = new String[] {"tag1", "tag2", "tag3"};
+
+
+        MyDatabaseHelper database = new MyDatabaseHelper(AddTaskActivity.this);
+        String [] tags =database.getTagsNames().toArray(new String[0]);
         ArrayAdapter<String> tagsAdapter = new ArrayAdapter<>(AddTaskActivity.this,
                 android.R.layout.simple_spinner_item, tags);
         tagsAdapter.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item);
@@ -128,8 +130,6 @@ public class AddTaskActivity extends Activity {
 
         Button saveButton = findViewById(R.id.saveButton);
         saveButton.setOnClickListener(v -> {
-            MyDatabaseHelper database = new MyDatabaseHelper(AddTaskActivity.this);
-
             EditText title = findViewById(R.id.title);
             EditText description = findViewById(R.id.description);
             SwitchCompat status = findViewById(R.id.status);
@@ -146,7 +146,7 @@ public class AddTaskActivity extends Activity {
 
 
         listView = findViewById(R.id.attachments);
-        MyListAdapter adapter = new MyListAdapter(this,20,items);
+        AttachmentsListAdapter adapter = new AttachmentsListAdapter(this,R.layout.item_layout,items);
         listView.setAdapter(adapter);
 
     }
@@ -174,8 +174,8 @@ public class AddTaskActivity extends Activity {
         if (requestCode == PICK_FILE_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
             Uri uri = data.getData();
             if (uri != null) {
-                MyListAdapter adapter = new MyListAdapter(this,20,items);
-                items.add(uri.getPath());
+                AttachmentsListAdapter adapter = new AttachmentsListAdapter(this,R.layout.item_layout,items);
+                items.add(uri.toString());
                 listView.setAdapter(adapter);
             }
         }
