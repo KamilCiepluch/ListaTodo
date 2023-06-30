@@ -4,15 +4,20 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.icu.text.SimpleDateFormat;
 import android.icu.util.Calendar;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
+import android.provider.DocumentsContract;
+import android.provider.DocumentsProvider;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -30,15 +35,17 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class EditTask extends Activity {
-
-    private static final int REQUEST_CODE_PERMISSION = 123;
     private static int PICK_FILE_REQUEST_CODE = 0;
-    private static  int REQUEST_SELECT_IMAGE = 0;
+    private static  int REQUEST_SELECT_IMAGE = 1;
     private ListView listView;
     private final ArrayList<String> items = new ArrayList<>();
     private byte[] bArray;
@@ -51,9 +58,6 @@ public class EditTask extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.row_details);
-
-
-
 
         Long taskID = getIntent().getLongExtra("TaskID",-1);
         database = new MyDatabaseHelper(this);
@@ -168,28 +172,21 @@ public class EditTask extends Activity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
 
-                String filePath = items.get(position);
+                String fileUriString = items.get(position);
+                // Konwertowanie stringa na obiekt Uri
+                Uri fileUri = Uri.parse(fileUriString);
 
-                Uri fileUri = Uri.parse(filePath);
+                ContentResolver contentResolver = getContentResolver();
 
-                Log.wtf("URI", filePath);
-                if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(EditTask.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CODE_PERMISSION);
-                }
+                contentResolver.takePersistableUriPermission(fileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                contentResolver.takePersistableUriPermission(fileUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 
-                if(ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
-                {
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setDataAndType(fileUri, "application/*");
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                Intent openIntent = new Intent(Intent.ACTION_VIEW);
+                openIntent.setDataAndType(fileUri, contentResolver.getType(fileUri));
+                openIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 
-                    if (intent.resolveActivity(getPackageManager()) != null) {
-                        startActivity(intent);
-                    } else {
-                        Log.wtf("Attachment", "RIP");
-                        //Toast.makeText(this, "Brak aplikacji obsługującej pliki PDF.", Toast.LENGTH_SHORT).show();
-                    }
-
+                if (openIntent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(openIntent);
                 }
             }
         });
@@ -226,15 +223,11 @@ public class EditTask extends Activity {
     public void openFileChooser() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("*/*");
-        PICK_FILE_REQUEST_CODE =1;
-        REQUEST_SELECT_IMAGE = 0;
         startActivityForResult(intent, PICK_FILE_REQUEST_CODE);
     }
 
     public void selectImage() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        PICK_FILE_REQUEST_CODE =0;
-        REQUEST_SELECT_IMAGE = 1;
         startActivityForResult(intent, REQUEST_SELECT_IMAGE);
     }
 
