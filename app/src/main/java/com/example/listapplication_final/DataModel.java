@@ -3,15 +3,15 @@ package com.example.listapplication_final;
 public class DataModel {
 
     private  long primaryKey;
-    private String title;
-    private String description;
-    private String creation_time;
-    private String execution_time;
-    private boolean isFinished;
-    private boolean notifications;
+    private final String title;
+    private final String description;
+    private final String creation_time;
+    private final String execution_time;
+    private final boolean isFinished;
+    private final boolean notifications;
 
-    private int categoryId;
-    private byte[] image;
+    private final int categoryId;
+    private final byte[] image;
     public DataModel(long primaryKey, String title, String description,
                      String creation_time, String execution_time,
                      boolean status, boolean notifications, int categoryId, byte[] image) {

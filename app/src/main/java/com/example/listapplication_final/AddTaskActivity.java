@@ -33,8 +33,8 @@ import java.util.Locale;
 public class AddTaskActivity extends Activity {
 
 
-    private static int PICK_FILE_REQUEST_CODE = 0;
-    private static  int REQUEST_SELECT_IMAGE = 0;
+    private static final int PICK_FILE_REQUEST_CODE = 0;
+    private static final int REQUEST_SELECT_IMAGE = 1;
     private ListView listView;
     private final ArrayList<String> items = new ArrayList<>();
     private byte[] bArray;
@@ -47,14 +47,9 @@ public class AddTaskActivity extends Activity {
         ImageView imageView = findViewById(R.id.imageView);
         imageView.setImageResource(R.drawable.ic_launcher_background);
 
-        Button addImageButton = findViewById(R.id.addImageButton);
-        addImageButton.setOnClickListener(v -> selectImage());
 
 
-        Button addFileButton = findViewById(R.id.addFileButton);
-        addFileButton.setOnClickListener(v -> openFileChooser());
-
-
+        // creation time
         TextView creationTime = findViewById(R.id.creation_time);
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -63,31 +58,9 @@ public class AddTaskActivity extends Activity {
         String currentTime = timeFormat.format(calendar.getTime());
         creationTime.setText(currentDate +" " + currentTime);
 
-        Spinner tagsSpinner = findViewById(R.id.categorySpinner);
-
-
-        MyDatabaseHelper database = new MyDatabaseHelper(AddTaskActivity.this);
-        String [] tags =database.getTagsNames().toArray(new String[0]);
-        ArrayAdapter<String> tagsAdapter = new ArrayAdapter<>(AddTaskActivity.this,
-                android.R.layout.simple_spinner_item, tags);
-        tagsAdapter.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item);
-
-        tagsSpinner.setAdapter(tagsAdapter);
-        tagsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                 selectedOption = parent.getItemAtPosition(position).toString();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // Obsługa braku wybranej opcji
-                selectedOption = null;
-            }
-        });
-
-
+        //execution time
         TextView executionTime = findViewById(R.id.execution_time);
+        executionTime.setText(currentDate +" " + currentTime);
         executionTime.setOnClickListener(v -> {
             // Get the current year, month, and day from the Calendar
             int year = calendar.get(Calendar.YEAR);
@@ -128,6 +101,48 @@ public class AddTaskActivity extends Activity {
             datePickerDialog.show();
         });
 
+
+        // open database
+        MyDatabaseHelper database = new MyDatabaseHelper(AddTaskActivity.this);
+        String [] tags =database.getTagsNames().toArray(new String[0]);
+
+
+        //tags spinner
+        Spinner tagsSpinner = findViewById(R.id.categorySpinner);
+        ArrayAdapter<String> tagsAdapter = new ArrayAdapter<>(AddTaskActivity.this,
+                android.R.layout.simple_spinner_item, tags);
+        tagsAdapter.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item);
+        tagsSpinner.setAdapter(tagsAdapter);
+        tagsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                 selectedOption = parent.getItemAtPosition(position).toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Obsługa braku wybranej opcji
+                selectedOption = null;
+            }
+        });
+
+
+        // attachments
+        listView = findViewById(R.id.attachments);
+        AttachmentsListAdapter adapter = new AttachmentsListAdapter(this,R.layout.item_layout,items);
+        listView.setAdapter(adapter);
+
+
+        //Add image
+        Button addImageButton = findViewById(R.id.addImageButton);
+        addImageButton.setOnClickListener(v -> selectImage());
+
+        //Add File
+        Button addFileButton = findViewById(R.id.addFileButton);
+        addFileButton.setOnClickListener(v -> openFileChooser());
+
+
+        //Save
         Button saveButton = findViewById(R.id.saveButton);
         saveButton.setOnClickListener(v -> {
             EditText title = findViewById(R.id.title);
@@ -143,28 +158,18 @@ public class AddTaskActivity extends Activity {
             database.addAttachments(items, id );
             database.close();
         });
-
-
-        listView = findViewById(R.id.attachments);
-        AttachmentsListAdapter adapter = new AttachmentsListAdapter(this,R.layout.item_layout,items);
-        listView.setAdapter(adapter);
-
     }
 
 
     public void openFileChooser() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("*/*");
-        PICK_FILE_REQUEST_CODE =1;
-        REQUEST_SELECT_IMAGE = 0;
         startActivityForResult(intent, PICK_FILE_REQUEST_CODE);
     }
 
     public void selectImage()
     {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        PICK_FILE_REQUEST_CODE =0;
-        REQUEST_SELECT_IMAGE = 1;
         startActivityForResult(intent, REQUEST_SELECT_IMAGE);
     }
 
@@ -186,7 +191,6 @@ public class AddTaskActivity extends Activity {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
                 bArray = bos.toByteArray();
-               // database.updateDataImage(1,bArray);
                 ImageView imageView = findViewById(R.id.imageView);
                 imageView.setImageBitmap(bitmap);
             } catch (Exception e) {

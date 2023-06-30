@@ -6,10 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
-
-import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,12 +17,9 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME ="List.db";
     private static final int DATABASE_VERSION =2;
 
-    private static final String TAGS= "TAGS";;
-    private Context context;
     public MyDatabaseHelper(@NonNull Context context)
     {
         super(context,DATABASE_NAME,null,DATABASE_VERSION);
-        this.context = context;
     }
     @Override
     public void onCreate(SQLiteDatabase db) {
@@ -34,8 +28,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
                 "(   ID INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "    NAME VARCHAR(30) UNIQUE NOT NULL);";
 
-        String query2 =
-                "CREATE TABLE IF NOT EXISTS DATA" +
+        String query2 = "CREATE TABLE IF NOT EXISTS DATA" +
                         "(" +
                         "    ID INTEGER PRIMARY KEY AUTOINCREMENT," +
                         "    TITLE VARCHAR(50)," +
@@ -46,8 +39,8 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
                         "    NOTIFICATIONS INTEGER," +
                         "    CATEGORY_ID INTEGER," +
                         "    IMAGE BLOB);";
-        String query3 =
-                "CREATE TABLE IF NOT EXISTS ATTACHMENTS" +
+
+        String query3 = "CREATE TABLE IF NOT EXISTS ATTACHMENTS" +
                         "(" +
                         "    ID INTEGER PRIMARY KEY AUTOINCREMENT," +
                         "    DATA_ID INTEGER," +
