@@ -17,4 +17,6 @@
     <string name="statusN"> active</string>
     <string name="notificationsOn"> on </string>
     <string name="notificationsOff"> off </string>
+    <string name="hide_finished"> hide finished tasks </string>
+    <string name="notifications_time"> Notification time </string>
 </resources>

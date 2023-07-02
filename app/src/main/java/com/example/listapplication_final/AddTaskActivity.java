@@ -1,13 +1,19 @@
 package com.example.listapplication_final;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.icu.text.SimpleDateFormat;
 import android.icu.util.Calendar;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
@@ -24,6 +30,7 @@ import android.widget.TimePicker;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.ByteArrayOutputStream;
@@ -157,6 +164,13 @@ public class AddTaskActivity extends Activity {
             long id = database.addData(dataModel);
             database.addAttachments(items, id );
             database.close();
+
+            NotificationHelper notificationHelper = new NotificationHelper(this);
+            notificationHelper.scheduleNotification("Powiadomienie0", "Treść powiadomienia",10 *1000,0);
+
+
+
+
         });
     }
 
@@ -198,4 +212,5 @@ public class AddTaskActivity extends Activity {
             }
         }
     }
+
 }

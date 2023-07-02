@@ -5,23 +5,61 @@
     android:layout_height="match_parent">
 
     <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/status"
+        android:id="@+id/hide_finished"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="@string/statusLabel"
+        android:text="@string/hide_finished"
         android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+
+    <TextView
+        android:id="@+id/notifications_time"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:text="@string/notifications_time"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/hide_finished"
+        app:layout_constraintBottom_toBottomOf="@+id/categorySpinner" />
 
     <Spinner
         android:id="@+id/categorySpinner"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:minHeight="48dp"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/notifications_time"
+        app:layout_constraintTop_toBottomOf="@+id/hide_finished" />
+
+    <TextView
+        android:id="@+id/notifications_time"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:text="@string/notifications_time"
+        android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/status" />
+        app:layout_constraintTop_toBottomOf="@+id/hide_finished"
+        app:layout_constraintBottom_toBottomOf="@+id/categorySpinner" />
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/notifications_time" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
