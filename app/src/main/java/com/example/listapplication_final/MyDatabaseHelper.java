@@ -15,7 +15,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 
 
     private static final String DATABASE_NAME ="List.db";
-    private static final int DATABASE_VERSION =3;
+    private static final int DATABASE_VERSION =4;
 
     public MyDatabaseHelper(@NonNull Context context)
     {
@@ -73,7 +73,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         // not valid error
         try {
             db.insertOrThrow("TAGS",null,values);
-        }catch (Exception e){};
+        }catch (Exception ignored){}
     }
     void addTag(String tag, boolean isActive)
     {
@@ -85,7 +85,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         // not valid error
         try {
             db.insertOrThrow("TAGS",null,values);
-        }catch (Exception e){};
+        }catch (Exception ignored){}
     }
 
     void updateTagStatus(int tagID, boolean isActive)
@@ -120,14 +120,14 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     }
 
     int getTagID(String tagName) {
+        int tagId = -1;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT ID FROM TAGS WHERE NAME =\"" + tagName.toUpperCase()+"\"", null);
         if (cursor.moveToFirst()) {
-            int tagId = cursor.getInt(cursor.getColumnIndexOrThrow("ID"));
-            return tagId;
+            tagId = cursor.getInt(cursor.getColumnIndexOrThrow("ID"));
         }
         cursor.close();
-        return -1;
+        return tagId;
     }
 
     public String getTagName(int id)
@@ -223,7 +223,19 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         return tags;
     }
-
+    public int getCountByTasksWithTag(String tagName)
+    {
+        int categoryId = getTagID(tagName);
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] selectionArgs = {String.valueOf(categoryId)};
+        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM DATA WHERE CATEGORY_ID=?", selectionArgs);
+        int count = 0;
+        if (cursor.moveToFirst()) {
+            count = cursor.getInt(0);
+        }
+        cursor.close();
+        return count;
+    }
 
 
     public long addData(DataModel data)
@@ -268,7 +280,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
             ContentValues values = new ContentValues();
             values.put("DATA_ID", data_id);
             values.put("PATH", path);
-            long id = db.insert("ATTACHMENTS", null, values);
+            db.insert("ATTACHMENTS", null, values);
         }
         db.close();
     }
@@ -296,9 +308,37 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
             String description = cursor.getString(cursor.getColumnIndexOrThrow("DESCRIPTION"));
             String creationTime = cursor.getString(cursor.getColumnIndexOrThrow("CREATION_TIME"));
             String executionTime = cursor.getString(cursor.getColumnIndexOrThrow("EXECUTION_TIME"));
-            Integer status = cursor.getInt(cursor.getColumnIndexOrThrow("STATUS"));
-            Integer notifications = cursor.getInt(cursor.getColumnIndexOrThrow("NOTIFICATIONS"));
-            Integer categoryId = cursor.getInt(cursor.getColumnIndexOrThrow("CATEGORY_ID"));
+            int status = cursor.getInt(cursor.getColumnIndexOrThrow("STATUS"));
+            int notifications = cursor.getInt(cursor.getColumnIndexOrThrow("NOTIFICATIONS"));
+            int categoryId = cursor.getInt(cursor.getColumnIndexOrThrow("CATEGORY_ID"));
+            byte[] image=  cursor.getBlob(cursor.getColumnIndexOrThrow("IMAGE"));
+
+            DataModel data = new DataModel(id, title,description,creationTime,executionTime,
+                    status> 0, notifications>0, categoryId,image);
+
+
+            list.add(data);
+        }
+        cursor.close();
+        return list;
+    }
+
+
+    public List<DataModel> getTasksListWithActiveNotifications()
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM DATA WHERE NOTIFICATIONS=1",null);
+        List<DataModel> list = new ArrayList<>();
+        while (cursor.moveToNext())
+        {
+            int id = cursor.getInt(cursor.getColumnIndexOrThrow("ID"));
+            String title = cursor.getString(cursor.getColumnIndexOrThrow("TITLE"));
+            String description = cursor.getString(cursor.getColumnIndexOrThrow("DESCRIPTION"));
+            String creationTime = cursor.getString(cursor.getColumnIndexOrThrow("CREATION_TIME"));
+            String executionTime = cursor.getString(cursor.getColumnIndexOrThrow("EXECUTION_TIME"));
+            int status = cursor.getInt(cursor.getColumnIndexOrThrow("STATUS"));
+            int notifications = cursor.getInt(cursor.getColumnIndexOrThrow("NOTIFICATIONS"));
+            int categoryId = cursor.getInt(cursor.getColumnIndexOrThrow("CATEGORY_ID"));
             byte[] image=  cursor.getBlob(cursor.getColumnIndexOrThrow("IMAGE"));
 
             DataModel data = new DataModel(id, title,description,creationTime,executionTime,
@@ -324,9 +364,9 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
             String description = cursor.getString(cursor.getColumnIndexOrThrow("DESCRIPTION"));
             String creationTime = cursor.getString(cursor.getColumnIndexOrThrow("CREATION_TIME"));
             String executionTime = cursor.getString(cursor.getColumnIndexOrThrow("EXECUTION_TIME"));
-            Integer status = cursor.getInt(cursor.getColumnIndexOrThrow("STATUS"));
-            Integer notifications = cursor.getInt(cursor.getColumnIndexOrThrow("NOTIFICATIONS"));
-            Integer categoryId = cursor.getInt(cursor.getColumnIndexOrThrow("CATEGORY_ID"));
+            int status = cursor.getInt(cursor.getColumnIndexOrThrow("STATUS"));
+            int notifications = cursor.getInt(cursor.getColumnIndexOrThrow("NOTIFICATIONS"));
+            int categoryId = cursor.getInt(cursor.getColumnIndexOrThrow("CATEGORY_ID"));
             byte[] image=  cursor.getBlob(cursor.getColumnIndexOrThrow("IMAGE"));
 
              result = new DataModel(id, title,description,creationTime,executionTime,
@@ -376,8 +416,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         db.update("DATA", values, "id=?", new String[]{Integer.toString(id)});
         db.close();
     }
-    public void deleteAllData()
-    {
+    public void deleteAllData() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete("TAGS", null, null);
         db.delete("DATA", null, null);

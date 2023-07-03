@@ -7,7 +7,7 @@
     <string name="creation_timeLabel">Created: </string>
     <string name="execution_timeLabel">Execution: </string>
 
-    <string name="statusLabel">Status </string>
+    <string name="statusLabel"> Is Finished: </string>
     <string name="notifications">Notifications: </string>
     <string name="category">Category: </string>
     <string name="addImageButton">Add Image </string>

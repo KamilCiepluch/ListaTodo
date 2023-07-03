@@ -219,7 +219,7 @@ public class EditTask extends Activity {
 
 
     public void openFileChooser() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.setType("*/*");
         startActivityForResult(intent, PICK_FILE_REQUEST_CODE);
     }

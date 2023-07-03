@@ -6,7 +6,9 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -77,6 +79,15 @@ public class MainActivity extends AppCompatActivity {
         List<DataModel> itemList = list.stream()
                 .filter(dataModel -> activeTagsIDs.contains(dataModel.getCategoryId()))
                 .collect(Collectors.toList());
+
+
+        SharedPreferences sharedPreferences = getSharedPreferences("List", Context.MODE_PRIVATE);
+        boolean hideFinishedTasks = sharedPreferences.getBoolean("hideFinishedTasks",false);
+        if(hideFinishedTasks)
+        {
+            itemList.removeIf(DataModel::getFinished);
+        }
+
 
 
         // Tworzenie komparatora opartego na dacie i czasie wykonania

@@ -169,14 +169,14 @@ public class AddTaskActivity extends Activity {
 
             //todo fix
 
-            SharedPreferences sharedPreferences = getSharedPreferences("List", Context.MODE_PRIVATE);
-            String offset = sharedPreferences.getString("NotificationTimeString", "0min");
-            long timeMili = TimeCalculator.calculateTimeDifference(dataModel.getExecutionTime(),offset);
-            NotificationHelper notificationHelper = new NotificationHelper(this);
-            notificationHelper.scheduleNotification(dataModel.getTitle(), dataModel.getDescription(),timeMili, dataModel.getPrimaryKey());
-
-
-
+            if(dataModel.getNotifications())
+            {
+                SharedPreferences sharedPreferences = getSharedPreferences("List", Context.MODE_PRIVATE);
+                String offset = sharedPreferences.getString("NotificationTimeString", "0min");
+                long timeMili = TimeCalculator.calculateTimeDifference(dataModel.getExecutionTime(),offset);
+                NotificationHelper notificationHelper = new NotificationHelper(this);
+                notificationHelper.scheduleNotification(dataModel.getTitle(), dataModel.getDescription(),timeMili, dataModel.getPrimaryKey());
+            }
 
         });
     }
