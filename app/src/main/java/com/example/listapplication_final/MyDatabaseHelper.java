@@ -145,6 +145,21 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         return tags;
     }
 
+    public ArrayList<TagModel> getTagsNamesAsTagsArray()
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM TAGS",null);
+        ArrayList<TagModel> tags = new ArrayList<>();
+        while (cursor.moveToNext())
+        {
+            String item = cursor.getString(cursor.getColumnIndexOrThrow("NAME"));
+            TagModel model = new TagModel(item,false);
+            tags.add(model);
+        }
+        cursor.close();
+        return tags;
+    }
+
 
     public long addData(DataModel data)
     {

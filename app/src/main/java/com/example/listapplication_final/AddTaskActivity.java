@@ -165,6 +165,7 @@ public class AddTaskActivity extends Activity {
             database.addAttachments(items, id );
             database.close();
 
+            //todo fix
             NotificationHelper notificationHelper = new NotificationHelper(this);
             notificationHelper.scheduleNotification("Powiadomienie0", "Treść powiadomienia",10 *1000,0);
 

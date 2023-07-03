@@ -20,6 +20,14 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.98" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_launcher_foreground"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/guidelineVertical"/>
 
     <SearchView
     android:id="@+id/searchView"
@@ -53,6 +61,10 @@
         android:src="@drawable/ic_launcher_foreground"
         app:layout_constraintBottom_toBottomOf="@id/guidelineHorizontal"
         app:layout_constraintEnd_toStartOf="@id/guidelineVertical"/>
+
+
+
+
 
 
 

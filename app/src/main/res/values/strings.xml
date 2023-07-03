@@ -19,4 +19,7 @@
     <string name="notificationsOff"> off </string>
     <string name="hide_finished"> hide finished tasks </string>
     <string name="notifications_time"> Notification time </string>
+    <string name="addTag"> Add tag </string>
+    <string name="delTag"> Delete tag </string>
+    <string name="tags">Tags: </string>
 </resources>

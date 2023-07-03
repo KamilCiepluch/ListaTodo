@@ -58,6 +58,12 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(getApplicationContext(),AddTaskActivity.class);
             startActivity(intent);
         });
+
+        FloatingActionButton settingButton = findViewById(R.id.settings);
+        settingButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getApplicationContext(),Menu.class);
+            startActivity(intent);
+        });
     }
 
     @Override

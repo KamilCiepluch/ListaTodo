@@ -4,13 +4,24 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineVertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/hide_finished"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:gravity="center"
+        android:gravity="start"
         android:text="@string/hide_finished"
         android:textSize="20sp"
+        android:layout_marginStart="10sp"
+        android:layout_marginTop="10sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -21,9 +32,10 @@
         android:id="@+id/notifications_time"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:gravity="center"
+        android:gravity="center_vertical"
         android:text="@string/notifications_time"
         android:textSize="20sp"
+        android:layout_marginStart="10sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/hide_finished"
         app:layout_constraintBottom_toBottomOf="@+id/categorySpinner" />
@@ -34,32 +46,67 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:minHeight="48dp"
-        android:textSize="20sp"
+        android:autoSizeTextType="uniform"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/notifications_time"
         app:layout_constraintTop_toBottomOf="@+id/hide_finished" />
 
     <TextView
-        android:id="@+id/notifications_time"
+        android:id="@+id/tags"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:gravity="center"
-        android:text="@string/notifications_time"
+        android:gravity="start"
+        android:text="@string/tags"
         android:textSize="20sp"
+        android:layout_marginStart="10sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/hide_finished"
-        app:layout_constraintBottom_toBottomOf="@+id/categorySpinner" />
+        app:layout_constraintTop_toBottomOf="@+id/notifications_time"
+        app:layout_constraintBottom_toBottomOf="@id/enter_tag"/>
 
 
+    <EditText
+        android:id="@+id/enter_tag"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="20sp"
+
+        app:layout_constraintStart_toEndOf="@id/tags"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tags" />
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginStart="10sp"
         android:clickable="true"
         android:focusable="true"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/addTag"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/notifications_time" />
+        app:layout_constraintTop_toBottomOf="@id/tags" />
+
+
+    <Button
+        android:id="@+id/addTag"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:text="@string/addTag"
+        app:autoSizeTextType="uniform"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/guidelineVertical" />
+
+    <Button
+        android:id="@+id/deleteTag"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:text="@string/delTag"
+        app:autoSizeTextType="uniform"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

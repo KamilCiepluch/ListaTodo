@@ -1,25 +1,17 @@
 package com.example.listapplication_final;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.icu.text.SimpleDateFormat;
 import android.icu.util.Calendar;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.ParcelFileDescriptor;
-import android.provider.DocumentsContract;
-import android.provider.DocumentsProvider;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -29,23 +21,14 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileDescriptor;
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class EditTask extends Activity {
-    private static int PICK_FILE_REQUEST_CODE = 0;
-    private static  int REQUEST_SELECT_IMAGE = 1;
+    private static final int PICK_FILE_REQUEST_CODE = 0;
+    private static final int REQUEST_SELECT_IMAGE = 1;
     private ListView listView;
     private final ArrayList<String> items = new ArrayList<>();
     private byte[] bArray;
@@ -59,7 +42,7 @@ public class EditTask extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.row_details);
 
-        Long taskID = getIntent().getLongExtra("TaskID",-1);
+        long taskID = getIntent().getLongExtra("TaskID",-1);
         database = new MyDatabaseHelper(this);
         context = this;
         DataModel data = database.getTask(taskID);
@@ -216,6 +199,9 @@ public class EditTask extends Activity {
             database.updateData(dataModel);
             database.updateAttachments(items, taskID);
             database.close();
+
+            //todo update notification
+
         });
     }
 
@@ -249,7 +235,6 @@ public class EditTask extends Activity {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
                 bArray = bos.toByteArray();
-                // database.updateDataImage(1,bArray);
                 ImageView imageView = findViewById(R.id.imageView);
                 imageView.setImageBitmap(bitmap);
             } catch (Exception e) {
