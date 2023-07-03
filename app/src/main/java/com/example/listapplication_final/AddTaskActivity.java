@@ -9,6 +9,7 @@ import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.icu.text.SimpleDateFormat;
 import android.icu.util.Calendar;
@@ -42,6 +43,7 @@ public class AddTaskActivity extends Activity {
 
     private static final int PICK_FILE_REQUEST_CODE = 0;
     private static final int REQUEST_SELECT_IMAGE = 1;
+    private MyDatabaseHelper database;
     private ListView listView;
     private final ArrayList<String> items = new ArrayList<>();
     private byte[] bArray;
@@ -110,7 +112,7 @@ public class AddTaskActivity extends Activity {
 
 
         // open database
-        MyDatabaseHelper database = new MyDatabaseHelper(AddTaskActivity.this);
+        database = new MyDatabaseHelper(AddTaskActivity.this);
         String [] tags =database.getTagsNames().toArray(new String[0]);
 
 
@@ -166,8 +168,12 @@ public class AddTaskActivity extends Activity {
             database.close();
 
             //todo fix
+
+            SharedPreferences sharedPreferences = getSharedPreferences("List", Context.MODE_PRIVATE);
+            String offset = sharedPreferences.getString("NotificationTimeString", "0min");
+            long timeMili = TimeCalculator.calculateTimeDifference(dataModel.getExecutionTime(),offset);
             NotificationHelper notificationHelper = new NotificationHelper(this);
-            notificationHelper.scheduleNotification("Powiadomienie0", "Treść powiadomienia",10 *1000,0);
+            notificationHelper.scheduleNotification(dataModel.getTitle(), dataModel.getDescription(),timeMili, dataModel.getPrimaryKey());
 
 
 
@@ -214,4 +220,9 @@ public class AddTaskActivity extends Activity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        database.close();
+    }
 }

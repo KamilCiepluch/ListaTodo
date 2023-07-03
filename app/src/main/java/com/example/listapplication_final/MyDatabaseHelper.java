@@ -15,7 +15,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 
 
     private static final String DATABASE_NAME ="List.db";
-    private static final int DATABASE_VERSION =2;
+    private static final int DATABASE_VERSION =3;
 
     public MyDatabaseHelper(@NonNull Context context)
     {
@@ -26,7 +26,8 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 
         String query1 = "CREATE TABLE IF NOT EXISTS TAGS " +
                 "(   ID INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "    NAME VARCHAR(30) UNIQUE NOT NULL);";
+                "    NAME VARCHAR(30) UNIQUE NOT NULL," +
+                "    IS_ACTIVE INT(1) DEFAULT 0);";
 
         String query2 = "CREATE TABLE IF NOT EXISTS DATA" +
                         "(" +
@@ -74,7 +75,38 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
             db.insertOrThrow("TAGS",null,values);
         }catch (Exception e){};
     }
+    void addTag(String tag, boolean isActive)
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("NAME",tag.trim().toUpperCase());
+        int active = isActive ? 1:0;
+        values.put("IS_ACTIVE", active);
+        // not valid error
+        try {
+            db.insertOrThrow("TAGS",null,values);
+        }catch (Exception e){};
+    }
 
+    void updateTagStatus(int tagID, boolean isActive)
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        int active = isActive ? 1 : 0;
+        values.put("IS_ACTIVE", active);
+        String[] whereArgs = {String.valueOf(tagID)};
+        db.update("TAGS", values, "ID = ?", whereArgs);
+        db.close();
+    }
+    void deleteTag(String tag) {
+        int tagId = getTagID(tag);
+        SQLiteDatabase db = this.getWritableDatabase();
+        try {
+           db.delete("TAGS", "ID = ?", new String[]{String.valueOf(tagId)});
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     void printTags()
     {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -152,13 +184,46 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         ArrayList<TagModel> tags = new ArrayList<>();
         while (cursor.moveToNext())
         {
+            int tagID = cursor.getInt(cursor.getColumnIndexOrThrow("ID"));
             String item = cursor.getString(cursor.getColumnIndexOrThrow("NAME"));
-            TagModel model = new TagModel(item,false);
+            boolean isActive = cursor.getInt(cursor.getColumnIndexOrThrow("IS_ACTIVE")) == 1;
+            TagModel model = new TagModel(tagID,item,isActive);
             tags.add(model);
         }
         cursor.close();
         return tags;
     }
+
+    public ArrayList<TagModel> getActiveTagsArray()
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM TAGS WHERE IS_ACTIVE=1",null);
+        ArrayList<TagModel> tags = new ArrayList<>();
+        while (cursor.moveToNext())
+        {
+            int tagID = cursor.getInt(cursor.getColumnIndexOrThrow("ID"));
+            String item = cursor.getString(cursor.getColumnIndexOrThrow("NAME"));
+            boolean isActive = cursor.getInt(cursor.getColumnIndexOrThrow("IS_ACTIVE")) == 1;
+            TagModel model = new TagModel(tagID,item,isActive);
+            tags.add(model);
+        }
+        cursor.close();
+        return tags;
+    }
+    public ArrayList<Integer> getActiveTagsIDsArray()
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM TAGS WHERE IS_ACTIVE=1",null);
+        ArrayList<Integer> tags = new ArrayList<>();
+        while (cursor.moveToNext())
+        {
+            int tagID = cursor.getInt(cursor.getColumnIndexOrThrow("ID"));
+            tags.add(tagID);
+        }
+        cursor.close();
+        return tags;
+    }
+
 
 
     public long addData(DataModel data)

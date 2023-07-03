@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Editable;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -25,7 +26,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Menu extends Activity {
-
+    private MyDatabaseHelper database;
+    private EditText editText;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,14 +50,16 @@ public class Menu extends Activity {
         notificationAdapter.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item);
         notificationsSpinner.setAdapter(notificationAdapter);
         SharedPreferences sharedPreferences = getSharedPreferences("List", Context.MODE_PRIVATE);
-        int pos = sharedPreferences.getInt("NotificationTime", 0);
+        int pos = sharedPreferences.getInt("NotificationTimePos", 0);
+
         notificationsSpinner.setSelection(pos);
         notificationsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 SharedPreferences sharedPreferences = getSharedPreferences("List", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putInt("NotificationTime", position);
+                editor.putInt("NotificationTimePos", position);
+                editor.putString("NotificationTimeString", notificationTimeTags[position]);
                 editor.apply();
             }
 
@@ -64,30 +68,13 @@ public class Menu extends Activity {
         });
 
 
-        EditText editText = findViewById(R.id.enter_tag);
+        editText = findViewById(R.id.enter_tag);
 
 
         RecyclerView tagsRecyclerView = findViewById(R.id.recyclerView);
 
-        MyDatabaseHelper database = new MyDatabaseHelper(this);
-        List<TagModel> itemList = database.getTagsNamesAsTagsArray();
-        MenuRecyclerViewAdapter adapter = new MenuRecyclerViewAdapter(itemList);
-        adapter.setOnItemClickListener(position -> {
-            // Obsługa kliknięcia na element listy
-            // Pobierz kliknięty element na podstawie pozycji
-            /*
-            DataModel clickedItem = itemList.get(position);
-
-            // Wykonaj odpowiednie akcje na podstawie klikniętego elementu
-            Toast.makeText(MainActivity.this, "Kliknięto element ", Toast.LENGTH_SHORT).show();
-            Log.wtf("Click", "Kliknieto element: " + position);
-            Intent intent = new Intent(MainActivity.this,EditTask.class);
-            intent.putExtra("TaskID", clickedItem.getPrimaryKey());
-            startActivity(intent);
-            */
-        });
-        tagsRecyclerView.setAdapter(adapter);
-        tagsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        database = new MyDatabaseHelper(this);
+        setUpRecyclerView(tagsRecyclerView);
 
 
 
@@ -99,7 +86,9 @@ public class Menu extends Activity {
         addTagButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                String tag = editText.getText().toString().trim().toUpperCase();
+                database.addTag(tag,true);
+                setUpRecyclerView(tagsRecyclerView);
             }
         });
 
@@ -109,15 +98,30 @@ public class Menu extends Activity {
         deleteTagButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                String tag = editText.getText().toString().trim().toUpperCase();
+                database.deleteTag(tag);
+                setUpRecyclerView(tagsRecyclerView);
             }
         });
 
 
+    }
 
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        database.close();
+    }
 
-
-
+    private void setUpRecyclerView(RecyclerView recyclerView)
+    {
+        List<TagModel> itemList = database.getTagsNamesAsTagsArray();
+        MenuRecyclerViewAdapter adapter = new MenuRecyclerViewAdapter(itemList,this);
+        adapter.setOnItemClickListener(position -> {
+            editText.setText(itemList.get(position).getName());
+        });
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 }

@@ -69,13 +69,24 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        List<DataModel> itemList = database.getTaskList();
+        List<DataModel> list = database.getTaskList();
+
+        List<Integer> activeTagsIDs = database.getActiveTagsIDsArray();
+
+
+        List<DataModel> itemList = list.stream()
+                .filter(dataModel -> activeTagsIDs.contains(dataModel.getCategoryId()))
+                .collect(Collectors.toList());
+
 
         // Tworzenie komparatora opartego na dacie i czasie wykonania
         Comparator<DataModel> executionTimeComparator = Comparator.comparing(DataModel::getExecutionTime);
 
+
         // Sortowanie listy używając komparatora
         itemList.sort(executionTimeComparator);
+
+
 
 
         RecyclerViewAdapter adapter = new RecyclerViewAdapter(itemList,this);
@@ -143,5 +154,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        database.close();
+    }
 }

@@ -54,12 +54,12 @@ public class NotificationHelper {
         notificationManager.notify(notificationId, builder.build());
     }
 
-    public void scheduleNotification(String title, String message, long delayMillis, int notificationId) {
+    public void scheduleNotification(String title, String message, long delayMillis, long notificationId) {
         Data inputData = new Data.Builder()
                 .putString("title", title)
                 .putString("message", message)
                 .putLong("delayMillis",delayMillis)
-                .putInt("notificationId", notificationId)
+                .putLong("notificationId", notificationId)
                 .build();
 
         OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(NotificationWorker.class)
@@ -69,7 +69,7 @@ public class NotificationHelper {
 
         WorkManager.getInstance(context).enqueue(workRequest);
     }
-    public void cancelNotification(int notificationId) {
+    public void cancelNotification(long notificationId) {
         WorkManager.getInstance(context).cancelAllWorkByTag(String.valueOf(notificationId));
     }
 

@@ -9,7 +9,6 @@ public class DataModel {
     private final String execution_time;
     private final boolean isFinished;
     private final boolean notifications;
-
     private final int categoryId;
     private final byte[] image;
     public DataModel(long primaryKey, String title, String description,

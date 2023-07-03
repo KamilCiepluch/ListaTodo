@@ -6,6 +6,7 @@ import android.app.TimePickerDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.icu.util.Calendar;
@@ -201,6 +202,17 @@ public class EditTask extends Activity {
             database.close();
 
             //todo update notification
+            SharedPreferences sharedPreferences = getSharedPreferences("List", Context.MODE_PRIVATE);
+            String offset = sharedPreferences.getString("NotificationTimeString", "0min");
+            NotificationHelper notificationHelper = new NotificationHelper(this);
+            notificationHelper.cancelNotification(dataModel.getPrimaryKey());
+            long timeMili = TimeCalculator.calculateTimeDifference(dataModel.getExecutionTime(),offset);
+            notificationHelper.scheduleNotification(dataModel.getTitle(), dataModel.getDescription(),timeMili,(int) dataModel.getPrimaryKey());
+
+
+
+
+
 
         });
     }
@@ -241,5 +253,11 @@ public class EditTask extends Activity {
                 e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        database.close();
     }
 }
