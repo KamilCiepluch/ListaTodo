@@ -107,6 +107,33 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
             e.printStackTrace();
         }
     }
+
+
+    void deleteTask(long taskID)
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        try {
+            db.delete("DATA", "ID = ?", new String[]{String.valueOf(taskID)});
+            deleteTaskAttachments(taskID);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    void deleteTaskAttachments(long taskID)
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        try {
+            db.delete("ATTACHMENTS", "DATA_ID = ?", new String[]{String.valueOf(taskID)});
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+
+
     void printTags()
     {
         SQLiteDatabase db = this.getReadableDatabase();

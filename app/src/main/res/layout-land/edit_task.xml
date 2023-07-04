@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -18,7 +17,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.65" />
+        app:layout_constraintGuide_percent="0.7" />
 
 
     <androidx.constraintlayout.widget.Guideline
@@ -26,7 +25,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.2" />
+        app:layout_constraintGuide_percent="0.25" />
 
     <ImageView
         android:id="@+id/imageView"
@@ -60,7 +59,7 @@
         android:text="@string/description"
         android:textSize="22sp"
         android:maxLines="2"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/verticalGuideline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/horizontalGuideline" />
 
@@ -77,6 +76,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/description" />
 
+
     <TextView
         android:id="@+id/creation_time"
         android:layout_width="0dp"
@@ -84,10 +84,10 @@
         android:gravity="center"
         android:text="@string/creation_time"
         android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/verticalGuideline"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@id/creation_time_Label"
         app:layout_constraintTop_toBottomOf="@id/description" />
-
 
     <TextView
         android:id="@+id/execution_time_Label"
@@ -109,13 +109,12 @@
         android:gravity="center"
         android:text="@string/execution_time"
         android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/verticalGuideline"
+        app:layout_constraintHorizontal_bias="1.0"
+
         app:layout_constraintStart_toEndOf="@id/verticalGuideline0"
 
-        app:layout_constraintTop_toBottomOf="@+id/creation_time"
-
-        />
-
+        app:layout_constraintTop_toBottomOf="@+id/creation_time" />
 
     <TextView
         android:id="@+id/category"
@@ -135,7 +134,7 @@
         android:layout_height="0dp"
         android:textSize="20sp"
         android:gravity="center_horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/verticalGuideline"
         app:layout_constraintStart_toEndOf="@id/verticalGuideline0"
         app:layout_constraintTop_toBottomOf="@+id/execution_time"
         app:layout_constraintBottom_toBottomOf="@+id/category" />
@@ -148,7 +147,7 @@
         android:layout_marginStart="10sp"
         android:text="@string/statusLabel"
         android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/verticalGuideline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/category" />
 
@@ -162,7 +161,7 @@
         android:text="@string/notifications"
         android:textSize="20sp"
 
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/verticalGuideline"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/status" />
@@ -173,8 +172,8 @@
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/addImageButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/notifications"
+        app:layout_constraintStart_toStartOf="@id/verticalGuideline"
+        app:layout_constraintTop_toBottomOf="@id/horizontalGuideline"
         app:layout_constraintVertical_bias="0.0" />
 
     <Button
@@ -207,6 +206,16 @@
         android:layout_height="wrap_content"
         android:maxLines="1"
         android:text="@string/save"
+        app:autoSizeTextType="uniform"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/deleteButton" />
+
+    <Button
+        android:id="@+id/deleteButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:text="@string/delete_task"
         app:autoSizeTextType="uniform"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

@@ -24,6 +24,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
 import java.io.ByteArrayOutputStream;
@@ -43,7 +45,7 @@ public class EditTask extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.row_details);
+        setContentView(R.layout.edit_task);
 
         long taskID = getIntent().getLongExtra("TaskID",-1);
         database = new MyDatabaseHelper(this);
@@ -147,9 +149,6 @@ public class EditTask extends Activity {
 
 
         listView = findViewById(R.id.attachments);
-      //
-        //  MyListAdapter adapter = new MyListAdapter(this,20,items);
-
         AttachmentsListAdapter adapter = new AttachmentsListAdapter(this,R.layout.item_layout,items);
         listView.setAdapter(adapter);
 
@@ -201,8 +200,98 @@ public class EditTask extends Activity {
 
             showConfirmationDialog(dataModel,tagID);
         });
+
+        Button deleteButton = findViewById(R.id.deleteButton);
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MyDatabaseHelper database = new MyDatabaseHelper(com.example.listapplication_final.EditTask.this);
+                showConfirmationDialogDeleteButton(taskID);
+
+            }
+        });
     }
 
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        EditText title =findViewById(R.id.title);
+        EditText description = findViewById(R.id.description);
+        //  ImageView imageView = findViewById(R.id.imageView);
+        TextView creationTime = findViewById(R.id.creation_time);
+        TextView executionTime = findViewById(R.id.execution_time);
+         Spinner tag = findViewById(R.id.categorySpinner);
+        SwitchCompat isFinished = findViewById(R.id.status);
+        SwitchCompat notifications = findViewById(R.id.notifications);
+
+        outState.putString("title",title.getText().toString());
+        outState.putString("description",description.getText().toString());
+        outState.putByteArray("image", bArray);
+        outState.putString("creationTime",creationTime.getText().toString());
+        outState.putString("executionTime",executionTime.getText().toString());
+
+        outState.putInt("tagPos", tag.getSelectedItemPosition());
+        outState.putBoolean("isFinished", isFinished.isChecked());
+        outState.putBoolean("notifications", notifications.isChecked());
+        outState.putStringArrayList("list",items);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+
+        EditText title =findViewById(R.id.title);
+        EditText description = findViewById(R.id.description);
+        ImageView imageView = findViewById(R.id.imageView);
+        TextView creationTime = findViewById(R.id.creation_time);
+        TextView executionTime = findViewById(R.id.execution_time);
+        Spinner tag = findViewById(R.id.categorySpinner);
+        SwitchCompat isFinished = findViewById(R.id.status);
+        SwitchCompat notifications = findViewById(R.id.notifications);
+        listView = findViewById(R.id.attachments);
+
+        title.setText(savedInstanceState.getString("title"));
+        description.setText(savedInstanceState.getString("description"));
+        bArray = savedInstanceState.getByteArray("image");
+        if(bArray!=null)
+        {
+            imageView.setImageBitmap(BitmapFactory.decodeByteArray(bArray, 0, bArray.length));
+        }
+        creationTime.setText(savedInstanceState.getString("creationTime"));
+        executionTime.setText(savedInstanceState.getString("executionTime"));
+        tag.setSelection(savedInstanceState.getInt("tagPos"));
+        isFinished.setChecked(savedInstanceState.getBoolean("isFinished"));
+        notifications.setChecked(savedInstanceState.getBoolean("notifications"));
+
+        items.clear();
+        items.addAll(savedInstanceState.getStringArrayList("list"));
+        AttachmentsListAdapter adapter = new AttachmentsListAdapter(this,R.layout.item_layout,items);
+        listView.setAdapter(adapter);
+
+    }
+
+
+    private void showConfirmationDialogDeleteButton(long taskID) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Confirmation")
+                .setMessage("Do you want to delete task?")
+                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        database.deleteTask(taskID);
+                        database.close();
+                        onBackPressed();
+                    }
+                })
+                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // Obsługa akcji po kliknięciu "Nie"
+                    }
+                });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
 
 
     private void showConfirmationDialog(DataModel dataModel, int tagID) {
