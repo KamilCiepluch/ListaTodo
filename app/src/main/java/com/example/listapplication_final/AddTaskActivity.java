@@ -2,12 +2,14 @@ package com.example.listapplication_final;
 
 import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -28,6 +30,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
@@ -158,29 +161,54 @@ public class AddTaskActivity extends Activity {
             EditText description = findViewById(R.id.description);
             SwitchCompat status = findViewById(R.id.status);
             SwitchCompat notifications = findViewById(R.id.notifications);
-            int tagID = database.getTagID(selectedOption);
-            DataModel dataModel = new DataModel(title.getText().toString(), description.getText().toString(),
-                    creationTime.getText().toString(),
-                    executionTime.getText().toString(),status.isChecked(),notifications.isChecked(),tagID,bArray);
 
-            long id = database.addData(dataModel);
-            database.addAttachments(items, id );
-            database.close();
-
-            //todo fix
-
-            if(dataModel.getNotifications())
+            if(selectedOption!=null)
             {
-                SharedPreferences sharedPreferences = getSharedPreferences("List", Context.MODE_PRIVATE);
-                String offset = sharedPreferences.getString("NotificationTimeString", "0min");
-                long timeMili = TimeCalculator.calculateTimeDifference(dataModel.getExecutionTime(),offset);
-                NotificationHelper notificationHelper = new NotificationHelper(this);
-                notificationHelper.scheduleNotification(dataModel.getTitle(), dataModel.getDescription(),timeMili, dataModel.getPrimaryKey());
+                int tagID = database.getTagID(selectedOption);
+                DataModel dataModel = new DataModel(title.getText().toString(), description.getText().toString(),
+                        creationTime.getText().toString(),
+                        executionTime.getText().toString(),status.isChecked(),notifications.isChecked(),tagID,bArray);
+                showConfirmationDialog(dataModel);
+
+            }
+            else
+            {
+                Toast.makeText(AddTaskActivity.this, "There's no available tags", Toast.LENGTH_LONG).show();
             }
 
         });
     }
+    private void showConfirmationDialog(DataModel dataModel) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Confirmation")
+                .setMessage("Do you want to create new task?")
+                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        long taskID = database.addData(dataModel);
+                        database.addAttachments(items, taskID );
+                        database.close();
 
+                        //todo fix
+
+                        if(dataModel.getNotifications())
+                        {
+                            SharedPreferences sharedPreferences = getSharedPreferences("List", Context.MODE_PRIVATE);
+                            String offset = sharedPreferences.getString("NotificationTimeString", "0min");
+                            long timeMili = TimeCalculator.calculateTimeDifference(dataModel.getExecutionTime(),offset);
+                            NotificationHelper notificationHelper = new NotificationHelper(AddTaskActivity.this);
+                            notificationHelper.scheduleNotification(dataModel.getTitle(), dataModel.getDescription(),timeMili, dataModel.getPrimaryKey());
+                        }
+                        onBackPressed();
+                    }
+                })
+                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // Obsługa akcji po kliknięciu "Nie"
+                    }
+                });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
 
     public void openFileChooser() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);

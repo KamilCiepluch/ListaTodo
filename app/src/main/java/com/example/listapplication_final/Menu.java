@@ -1,7 +1,9 @@
 package com.example.listapplication_final;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
@@ -107,14 +109,33 @@ public class Menu extends Activity {
             String tag = editText.getText().toString().trim().toUpperCase();
             if(database.getCountByTasksWithTag(tag)==0)
             {
-                database.deleteTag(tag);
-                setUpRecyclerView(tagsRecyclerView);
+                showConfirmationDialog(tag,tagsRecyclerView);
             }
             else {
                 Toast.makeText(Menu.this, "You can't delete tag that is used by task", Toast.LENGTH_SHORT).show();
             }
         });
     }
+
+    private void showConfirmationDialog(String tag,RecyclerView tagsRecyclerView) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Confirmation")
+                .setMessage("Are you sure to delete tag?")
+                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        database.deleteTag(tag);
+                        setUpRecyclerView(tagsRecyclerView);
+                        //onBackPressed();
+                    }
+                })
+                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                    }
+                });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
 
 
     @Override

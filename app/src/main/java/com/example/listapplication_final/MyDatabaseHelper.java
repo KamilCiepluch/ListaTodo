@@ -15,7 +15,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 
 
     private static final String DATABASE_NAME ="List.db";
-    private static final int DATABASE_VERSION =4;
+    private static final int DATABASE_VERSION =5;
 
     public MyDatabaseHelper(@NonNull Context context)
     {

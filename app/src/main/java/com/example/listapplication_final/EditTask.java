@@ -1,10 +1,12 @@
 package com.example.listapplication_final;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -197,24 +199,41 @@ public class EditTask extends Activity {
                     creationTime.getText().toString(),
                     executionTime.getText().toString(),status.isChecked(),notifications.isChecked(),tagID,bArray);
 
-            database.updateData(dataModel);
-            database.updateAttachments(items, taskID);
-            database.close();
-
-            //todo update notification
-            SharedPreferences sharedPreferences = getSharedPreferences("List", Context.MODE_PRIVATE);
-            String offset = sharedPreferences.getString("NotificationTimeString", "0min");
-            NotificationHelper notificationHelper = new NotificationHelper(this);
-            notificationHelper.cancelNotification(dataModel.getPrimaryKey());
-            long timeMili = TimeCalculator.calculateTimeDifference(dataModel.getExecutionTime(),offset);
-            notificationHelper.scheduleNotification(dataModel.getTitle(), dataModel.getDescription(),timeMili,(int) dataModel.getPrimaryKey());
-
-
-
-
-
-
+            showConfirmationDialog(dataModel,tagID);
         });
+    }
+
+
+
+    private void showConfirmationDialog(DataModel dataModel, int tagID) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Confirmation")
+                .setMessage("Do you want to save changes?")
+                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        database.updateData(dataModel);
+                        database.updateAttachments(items, tagID);
+                        database.close();
+
+                        if(dataModel.getNotifications())
+                        {
+                            SharedPreferences sharedPreferences = getSharedPreferences("List", Context.MODE_PRIVATE);
+                            String offset = sharedPreferences.getString("NotificationTimeString", "0min");
+                            NotificationHelper notificationHelper = new NotificationHelper(EditTask.this);
+                            notificationHelper.cancelNotification(dataModel.getPrimaryKey());
+                            long timeMili = TimeCalculator.calculateTimeDifference(dataModel.getExecutionTime(),offset);
+                            notificationHelper.scheduleNotification(dataModel.getTitle(), dataModel.getDescription(),timeMili,(int) dataModel.getPrimaryKey());
+                        }
+                        //onBackPressed();
+                    }
+                })
+                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // Obsługa akcji po kliknięciu "Nie"
+                    }
+                });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
 
