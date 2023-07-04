@@ -205,7 +205,6 @@ public class EditTask extends Activity {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MyDatabaseHelper database = new MyDatabaseHelper(com.example.listapplication_final.EditTask.this);
                 showConfirmationDialogDeleteButton(taskID);
 
             }
@@ -279,8 +278,11 @@ public class EditTask extends Activity {
                 .setMessage("Do you want to delete task?")
                 .setPositiveButton("YES", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+
                         database.deleteTask(taskID);
                         database.close();
+                        NotificationHelper notificationHelper = new NotificationHelper(EditTask.this);
+                        notificationHelper.cancelNotification(taskID);
                         onBackPressed();
                     }
                 })
