@@ -18,7 +18,7 @@ public class NotificationHelper {
     private static final String CHANNEL_ID = "your_channel_id";
     private static final String CHANNEL_NAME = "Your Channel Name";
     private static final String CHANNEL_DESCRIPTION = "Your Channel Description";
-    private static final int NOTIFICATION_ID = 1;
+
 
     private Context context;
 

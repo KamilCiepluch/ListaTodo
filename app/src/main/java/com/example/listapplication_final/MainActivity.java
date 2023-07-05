@@ -107,8 +107,8 @@ public class MainActivity extends AppCompatActivity {
             DataModel clickedItem = itemList.get(position);
 
             // Wykonaj odpowiednie akcje na podstawie klikniętego elementu
-            Toast.makeText(MainActivity.this, "Kliknięto element ", Toast.LENGTH_SHORT).show();
-            Log.wtf("Click", "Kliknieto element: " + position);
+          //  Toast.makeText(MainActivity.this, "Kliknięto element ", Toast.LENGTH_SHORT).show();
+           // Log.wtf("Click", "Kliknieto element: " + position);
             Intent intent = new Intent(MainActivity.this,EditTask.class);
             intent.putExtra("TaskID", clickedItem.getPrimaryKey());
             startActivity(intent);
