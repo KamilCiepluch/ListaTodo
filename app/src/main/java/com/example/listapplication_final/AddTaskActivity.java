@@ -8,6 +8,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -37,9 +38,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.FileProvider;
+import androidx.documentfile.provider.DocumentFile;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -51,6 +61,8 @@ public class AddTaskActivity extends Activity {
     private MyDatabaseHelper database;
     private ListView listView;
     private final ArrayList<String> items = new ArrayList<>();
+
+    private final ArrayList<String> attachments_uris = new ArrayList<>();
     private byte[] bArray;
     String selectedOption;
     @Override
@@ -247,7 +259,8 @@ public class AddTaskActivity extends Activity {
                 .setPositiveButton("YES", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         long taskID = database.addData(dataModel);
-                        database.addAttachments(items, taskID );
+                        copyAttachments(items,taskID);
+                        database.addAttachments(attachments_uris, taskID );
                         database.close();
 
                         //todo fix
@@ -309,6 +322,48 @@ public class AddTaskActivity extends Activity {
             }
         }
     }
+
+
+    //todo poprawic
+    public Uri copyFileToInternalStorage(Uri sourceUri, String fileName) {
+
+        DocumentFile source = DocumentFile.fromSingleUri(this, sourceUri);
+        File destinationDir = getApplicationContext().getFilesDir();
+        String [] parts = source.getName().split("\\.");
+        int lastIndex = source.getName().lastIndexOf(".");
+        String name = source.getName().substring(0,lastIndex) + "_" + fileName.trim().toUpperCase() +"."+parts[parts.length-1];
+        File destinationFile = new File(destinationDir, name);
+
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(source.getUri());
+            OutputStream outputStream = new FileOutputStream(destinationFile);
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+            inputStream.close();
+            outputStream.close();
+            return FileProvider.getUriForFile(AddTaskActivity.this,"com.example.listapplication_final.fileprovider",destinationFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    public void copyAttachments(ArrayList<String> list, long task_id)
+    {
+        for (String uri: list)
+        {
+            Uri fileUri = Uri.parse(uri);
+            String file_name = "task" + task_id;
+            Uri newUri = copyFileToInternalStorage(fileUri, file_name);
+            attachments_uris.add(newUri.toString());
+        }
+    }
+
+
 
     @Override
     protected void onDestroy() {

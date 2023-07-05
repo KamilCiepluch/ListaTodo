@@ -9,12 +9,15 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.icu.util.Calendar;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -25,17 +28,29 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.content.FileProvider;
+import androidx.documentfile.provider.DocumentFile;
+
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 public class EditTask extends Activity {
     private static final int PICK_FILE_REQUEST_CODE = 0;
     private static final int REQUEST_SELECT_IMAGE = 1;
     private ListView listView;
     private final ArrayList<String> items = new ArrayList<>();
+    private final ArrayList<String> new_attachments = new ArrayList<>();
+    private final ArrayList<String> attachments_uris = new ArrayList<>();
     private byte[] bArray;
     String selectedOption;
     private MyDatabaseHelper database;
@@ -144,7 +159,8 @@ public class EditTask extends Activity {
 
 
             items.addAll(database.getAttachmentsList(data.getPrimaryKey()));
-
+            //copy of current added uris
+            attachments_uris.addAll(items);
 
             listView = findViewById(R.id.attachments);
             AttachmentsListAdapter adapter = new AttachmentsListAdapter(this, R.layout.item_layout, items);
@@ -159,14 +175,22 @@ public class EditTask extends Activity {
                     // Konwertowanie stringa na obiekt Uri
                     Uri fileUri = Uri.parse(fileUriString);
 
+                    Log.wtf("Uri", fileUri.toString());
                     ContentResolver contentResolver = getContentResolver();
-
-                    contentResolver.takePersistableUriPermission(fileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    contentResolver.takePersistableUriPermission(fileUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+              //      contentResolver.takePersistableUriPermission(fileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                //    contentResolver.takePersistableUriPermission(fileUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 
                     Intent openIntent = new Intent(Intent.ACTION_VIEW);
                     openIntent.setDataAndType(fileUri, contentResolver.getType(fileUri));
                     openIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                    openIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                    // Udzielenie uprawnień URI do innych aplikacji
+                    List<ResolveInfo> resolveInfos = context.getPackageManager().queryIntentActivities(openIntent, PackageManager.MATCH_DEFAULT_ONLY);
+                    for (ResolveInfo resolveInfo : resolveInfos) {
+                        String packageName = resolveInfo.activityInfo.packageName;
+                        context.grantUriPermission(packageName, fileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    }
 
                     if (openIntent.resolveActivity(getPackageManager()) != null) {
                         startActivity(openIntent);
@@ -276,6 +300,7 @@ public class EditTask extends Activity {
                         database.close();
                         NotificationHelper notificationHelper = new NotificationHelper(EditTask.this);
                         notificationHelper.cancelNotification(taskID);
+                        deleteAllAttachmentsFiles(attachments_uris);
                         onBackPressed();
                     }
                 })
@@ -295,8 +320,12 @@ public class EditTask extends Activity {
                 .setMessage("Do you want to save changes?")
                 .setPositiveButton("YES", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+
+                        copyAttachments(new_attachments, dataModel.getPrimaryKey());
+
+
                         database.updateData(dataModel);
-                        database.updateAttachments(items, tagID);
+                        database.updateAttachments(attachments_uris, dataModel.getPrimaryKey());
                         database.close();
 
                         if(dataModel.getNotifications())
@@ -341,6 +370,7 @@ public class EditTask extends Activity {
             if (uri != null) {
                 AttachmentsListAdapter adapter = new AttachmentsListAdapter(this,R.layout.item_layout,items);
                 items.add(uri.toString());
+                new_attachments.add(uri.toString());
                 listView.setAdapter(adapter);
             }
         }
@@ -363,5 +393,63 @@ public class EditTask extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         database.close();
+    }
+
+    public Uri copyFileToInternalStorage(Uri sourceUri, String fileName) {
+
+        DocumentFile source = DocumentFile.fromSingleUri(this, sourceUri);
+        File destinationDir = getApplicationContext().getFilesDir();
+        String [] parts = source.getName().split("\\.");
+        int lastIndex = source.getName().lastIndexOf(".");
+        String name = source.getName().substring(0,lastIndex) + "_" + fileName.trim().toUpperCase() +"."+parts[parts.length-1];
+        File destinationFile = new File(destinationDir, name);
+
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(source.getUri());
+            OutputStream outputStream = new FileOutputStream(destinationFile);
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+            inputStream.close();
+            outputStream.close();
+            return FileProvider.getUriForFile(EditTask.this,"com.example.listapplication_final.fileprovider",destinationFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    public void copyAttachments(ArrayList<String> list, long task_id)
+    {
+        for (String uri: list)
+        {
+            Uri fileUri = Uri.parse(uri);
+            String file_name = "task" + task_id;
+            Uri newUri = copyFileToInternalStorage(fileUri, file_name);
+            attachments_uris.add(newUri.toString());
+        }
+        list.clear();
+    }
+
+    public void deleteFile( Uri fileUri) {
+        File fileToDelete = new File(fileUri.getPath());
+        if (fileToDelete.exists()) {
+            boolean isDeleted = fileToDelete.delete();
+            if (!isDeleted) {
+                Log.wtf("Failed to delete file", fileToDelete.getName());
+            }
+        }
+    }
+
+    public void deleteAllAttachmentsFiles(ArrayList<String> list)
+    {
+        for (String uri: list)
+        {
+            Uri fileUri = Uri.parse(uri);
+            deleteFile(fileUri);
+        }
     }
 }
