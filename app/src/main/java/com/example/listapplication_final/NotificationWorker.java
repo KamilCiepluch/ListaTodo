@@ -21,7 +21,7 @@ public class NotificationWorker extends Worker {
         Data inputData = getInputData();
         String title = inputData.getString("title");
         String message = inputData.getString("message");
-        int notificationId = inputData.getInt("notificationId", 0);
+        long notificationId = inputData.getLong("notificationId", 0);
 
         // Wyświetl powiadomienie
         showNotification(title, message, notificationId);
@@ -29,10 +29,10 @@ public class NotificationWorker extends Worker {
         return Result.success();
     }
 
-    private void showNotification(String title, String message, int notificationId) {
+    private void showNotification(String title, String message, long notificationId) {
         Context context = getApplicationContext();
         NotificationHelper notificationHelper = new NotificationHelper(context);
-        NotificationCompat.Builder builder = notificationHelper.getNotificationBuilder(title, message);
-        notificationHelper.notify(builder, notificationId);
+        NotificationCompat.Builder builder = notificationHelper.getNotificationBuilder(title, message,notificationId);
+        notificationHelper.notify(builder, (int)notificationId);
     }
 }

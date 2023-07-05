@@ -51,164 +51,157 @@ public class EditTask extends Activity {
         database = new MyDatabaseHelper(this);
         context = this;
         DataModel data = database.getTask(taskID);
+        if(data!=null) {
 
-        ImageView imageView = findViewById(R.id.imageView);
-        bArray = data.getImage();
-        if(bArray!=null) {
-            imageView.setImageBitmap(BitmapFactory.decodeByteArray(bArray, 0, bArray.length));
-        }
-
-        EditText title = findViewById(R.id.title);
-        title.setText(data.getTitle());
-
-
-        EditText description = findViewById(R.id.description);
-        description.setText(data.getDescription());
-
-        TextView creationTime = findViewById(R.id.creation_time);
-        creationTime.setText(data.getCreationTime());
-
-        TextView executionTime = findViewById(R.id.execution_time);
-        executionTime.setText(data.getExecutionTime());
-        executionTime.setOnClickListener(v -> {
-            // Get the current year, month, and day from the Calendar
-            Calendar calendar = Calendar.getInstance();
-            int year = calendar.get(Calendar.YEAR);
-            int month = calendar.get(Calendar.MONTH);
-            int day = calendar.get(Calendar.DAY_OF_MONTH);
-
-            // Create a DatePickerDialog and set the current date as the initial selection
-            DatePickerDialog datePickerDialog = new DatePickerDialog(com.example.listapplication_final.EditTask.this,
-                    (view, year1, monthOfYear, dayOfMonth) -> {
-
-                        String dayStr = dayOfMonth < 10 ? "0"+dayOfMonth : "" +dayOfMonth;
-                        String monthStr = (monthOfYear + 1)<10 ? "0" +(monthOfYear+1) : ""+(monthOfYear+1);
-
-                        String selectedDate = dayStr + "/" + monthStr + "/" + year1;
-
-                        // Pobierz bieżącą godzinę i minutę z kalendarza
-                        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-                        int minute = calendar.get(Calendar.MINUTE);
-
-                        // Utwórz TimePickerDialog i ustaw bieżącą godzinę jako początkową wartość wyboru
-                        TimePickerDialog timePickerDialog = new TimePickerDialog(com.example.listapplication_final.EditTask.this,
-                                (view1, hourOfDay, minute1) -> {
-                                    // Tutaj możesz wykonywać operacje z wybraną godziną'
-                                    String hourStr = hourOfDay < 10 ? "0"+hourOfDay : "" +hourOfDay;
-                                    String minuteStr = minute1 < 10 ? "0"+minute1 : "" +minute1;
-
-
-
-                                    // Utwórz łańcuch reprezentujący wybraną godzinę
-                                    String selectedTime = selectedDate + " "+ hourStr + ":" + minuteStr;
-                                    executionTime.setText(selectedTime);
-                                }, hour, minute, true);
-                        // Pokaż TimePickerDialog
-                        timePickerDialog.show();
-
-                    }, year, month, day);
-            // Show the DatePickerDialog
-            datePickerDialog.show();
-        });
-
-
-        SwitchCompat status = findViewById(R.id.status);
-        status.setChecked(data.getFinished());
-
-        SwitchCompat notifications = findViewById(R.id.notifications);
-        notifications.setChecked(data.getNotifications());
-
-
-
-        Spinner tagsSpinner = findViewById(R.id.categorySpinner);
-        ArrayList<String> tagsNamesArray = database.getTagsNames();
-        String tagNameTmp = database.getTagName(data.getCategoryId());
-
-        String [] tags = tagsNamesArray.toArray(new String[0]);
-        ArrayAdapter<String> tagsAdapter = new ArrayAdapter<>(com.example.listapplication_final.EditTask.this,
-                android.R.layout.simple_spinner_item, tags);
-        tagsAdapter.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item);
-        tagsSpinner.setAdapter(tagsAdapter);
-        tagsSpinner.setSelection(tagsNamesArray.indexOf(tagNameTmp));
-        tagsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedOption = parent.getItemAtPosition(position).toString();
+            ImageView imageView = findViewById(R.id.imageView);
+            bArray = data.getImage();
+            if (bArray != null) {
+                imageView.setImageBitmap(BitmapFactory.decodeByteArray(bArray, 0, bArray.length));
             }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // Obsługa braku wybranej opcji
-                selectedOption = null;
-            }
-        });
+            EditText title = findViewById(R.id.title);
+            title.setText(data.getTitle());
 
 
+            EditText description = findViewById(R.id.description);
+            description.setText(data.getDescription());
 
-        items.addAll( database.getAttachmentsList(data.getPrimaryKey()));
+            TextView creationTime = findViewById(R.id.creation_time);
+            creationTime.setText(data.getCreationTime());
+
+            TextView executionTime = findViewById(R.id.execution_time);
+            executionTime.setText(data.getExecutionTime());
+            executionTime.setOnClickListener(v -> {
+                // Get the current year, month, and day from the Calendar
+                Calendar calendar = Calendar.getInstance();
+                int year = calendar.get(Calendar.YEAR);
+                int month = calendar.get(Calendar.MONTH);
+                int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+                // Create a DatePickerDialog and set the current date as the initial selection
+                DatePickerDialog datePickerDialog = new DatePickerDialog(com.example.listapplication_final.EditTask.this,
+                        (view, year1, monthOfYear, dayOfMonth) -> {
+
+                            String dayStr = dayOfMonth < 10 ? "0" + dayOfMonth : "" + dayOfMonth;
+                            String monthStr = (monthOfYear + 1) < 10 ? "0" + (monthOfYear + 1) : "" + (monthOfYear + 1);
+
+                            String selectedDate = dayStr + "/" + monthStr + "/" + year1;
+
+                            // Pobierz bieżącą godzinę i minutę z kalendarza
+                            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                            int minute = calendar.get(Calendar.MINUTE);
+
+                            // Utwórz TimePickerDialog i ustaw bieżącą godzinę jako początkową wartość wyboru
+                            TimePickerDialog timePickerDialog = new TimePickerDialog(com.example.listapplication_final.EditTask.this,
+                                    (view1, hourOfDay, minute1) -> {
+                                        // Tutaj możesz wykonywać operacje z wybraną godziną'
+                                        String hourStr = hourOfDay < 10 ? "0" + hourOfDay : "" + hourOfDay;
+                                        String minuteStr = minute1 < 10 ? "0" + minute1 : "" + minute1;
 
 
-        listView = findViewById(R.id.attachments);
-        AttachmentsListAdapter adapter = new AttachmentsListAdapter(this,R.layout.item_layout,items);
-        listView.setAdapter(adapter);
+                                        // Utwórz łańcuch reprezentujący wybraną godzinę
+                                        String selectedTime = selectedDate + " " + hourStr + ":" + minuteStr;
+                                        executionTime.setText(selectedTime);
+                                    }, hour, minute, true);
+                            // Pokaż TimePickerDialog
+                            timePickerDialog.show();
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        }, year, month, day);
+                // Show the DatePickerDialog
+                datePickerDialog.show();
+            });
 
 
-                String fileUriString = items.get(position);
-                // Konwertowanie stringa na obiekt Uri
-                Uri fileUri = Uri.parse(fileUriString);
+            SwitchCompat status = findViewById(R.id.status);
+            status.setChecked(data.getFinished());
 
-                ContentResolver contentResolver = getContentResolver();
+            SwitchCompat notifications = findViewById(R.id.notifications);
+            notifications.setChecked(data.getNotifications());
 
-                contentResolver.takePersistableUriPermission(fileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                contentResolver.takePersistableUriPermission(fileUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 
-                Intent openIntent = new Intent(Intent.ACTION_VIEW);
-                openIntent.setDataAndType(fileUri, contentResolver.getType(fileUri));
-                openIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            Spinner tagsSpinner = findViewById(R.id.categorySpinner);
+            ArrayList<String> tagsNamesArray = database.getTagsNames();
+            String tagNameTmp = database.getTagName(data.getCategoryId());
 
-                if (openIntent.resolveActivity(getPackageManager()) != null) {
-                    startActivity(openIntent);
+            String[] tags = tagsNamesArray.toArray(new String[0]);
+            ArrayAdapter<String> tagsAdapter = new ArrayAdapter<>(com.example.listapplication_final.EditTask.this,
+                    android.R.layout.simple_spinner_item, tags);
+            tagsAdapter.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item);
+            tagsSpinner.setAdapter(tagsAdapter);
+            tagsSpinner.setSelection(tagsNamesArray.indexOf(tagNameTmp));
+            tagsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    selectedOption = parent.getItemAtPosition(position).toString();
                 }
-            }
-        });
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                    // Obsługa braku wybranej opcji
+                    selectedOption = null;
+                }
+            });
 
 
-
-        Button addImageButton = findViewById(R.id.addImageButton);
-        addImageButton.setOnClickListener(v -> selectImage());
-
-        Button addFileButton = findViewById(R.id.addFileButton);
-        addFileButton.setOnClickListener(v -> openFileChooser());
+            items.addAll(database.getAttachmentsList(data.getPrimaryKey()));
 
 
+            listView = findViewById(R.id.attachments);
+            AttachmentsListAdapter adapter = new AttachmentsListAdapter(this, R.layout.item_layout, items);
+            listView.setAdapter(adapter);
+
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
 
+                    String fileUriString = items.get(position);
+                    // Konwertowanie stringa na obiekt Uri
+                    Uri fileUri = Uri.parse(fileUriString);
+
+                    ContentResolver contentResolver = getContentResolver();
+
+                    contentResolver.takePersistableUriPermission(fileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    contentResolver.takePersistableUriPermission(fileUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
+                    Intent openIntent = new Intent(Intent.ACTION_VIEW);
+                    openIntent.setDataAndType(fileUri, contentResolver.getType(fileUri));
+                    openIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
+                    if (openIntent.resolveActivity(getPackageManager()) != null) {
+                        startActivity(openIntent);
+                    }
+                }
+            });
 
 
+            Button addImageButton = findViewById(R.id.addImageButton);
+            addImageButton.setOnClickListener(v -> selectImage());
 
-        Button saveButton = findViewById(R.id.saveButton);
-        saveButton.setOnClickListener(v -> {
-            MyDatabaseHelper database = new MyDatabaseHelper(com.example.listapplication_final.EditTask.this);
-            int tagID = database.getTagID(selectedOption);
-            DataModel dataModel = new DataModel(taskID,title.getText().toString(), description.getText().toString(),
-                    creationTime.getText().toString(),
-                    executionTime.getText().toString(),status.isChecked(),notifications.isChecked(),tagID,bArray);
+            Button addFileButton = findViewById(R.id.addFileButton);
+            addFileButton.setOnClickListener(v -> openFileChooser());
 
-            showConfirmationDialog(dataModel,tagID);
-        });
 
-        Button deleteButton = findViewById(R.id.deleteButton);
-        deleteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showConfirmationDialogDeleteButton(taskID);
+            Button saveButton = findViewById(R.id.saveButton);
+            saveButton.setOnClickListener(v -> {
+                MyDatabaseHelper database = new MyDatabaseHelper(com.example.listapplication_final.EditTask.this);
+                int tagID = database.getTagID(selectedOption);
+                DataModel dataModel = new DataModel(taskID, title.getText().toString(), description.getText().toString(),
+                        creationTime.getText().toString(),
+                        executionTime.getText().toString(), status.isChecked(), notifications.isChecked(), tagID, bArray);
 
-            }
-        });
+                showConfirmationDialog(dataModel, tagID);
+            });
+
+            Button deleteButton = findViewById(R.id.deleteButton);
+            deleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showConfirmationDialogDeleteButton(taskID);
+
+                }
+            });
+        }
     }
 
 
@@ -325,6 +318,7 @@ public class EditTask extends Activity {
                 });
         AlertDialog dialog = builder.create();
         dialog.show();
+
     }
 
 

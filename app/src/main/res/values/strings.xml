@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">ListApplication - final</string>
     <string name="title">Title</string>
-    <string name="description">bleble ble bel </string>
+    <string name="description">description </string>
     <string name="creation_time"> 12.02.2022 15:15 </string>
     <string name="execution_time"> 12.02.2022 15:30 </string>
     <string name="creation_timeLabel">Created: </string>

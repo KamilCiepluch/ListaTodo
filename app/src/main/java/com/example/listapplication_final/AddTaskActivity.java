@@ -258,7 +258,7 @@ public class AddTaskActivity extends Activity {
                             String offset = sharedPreferences.getString("NotificationTimeString", "0min");
                             long timeMili = TimeCalculator.calculateTimeDifference(dataModel.getExecutionTime(),offset);
                             NotificationHelper notificationHelper = new NotificationHelper(AddTaskActivity.this);
-                            notificationHelper.scheduleNotification(dataModel.getTitle(), dataModel.getDescription(),timeMili, dataModel.getPrimaryKey());
+                            notificationHelper.scheduleNotification(dataModel.getTitle(), dataModel.getDescription(),timeMili, taskID);
                         }
                         onBackPressed();
                     }

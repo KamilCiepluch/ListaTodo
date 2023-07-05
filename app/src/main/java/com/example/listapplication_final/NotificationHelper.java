@@ -4,8 +4,11 @@ package com.example.listapplication_final;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 import androidx.work.Data;
@@ -40,18 +43,23 @@ public class NotificationHelper {
         }
     }
 
-    public NotificationCompat.Builder getNotificationBuilder(String title, String message) {
+    public NotificationCompat.Builder getNotificationBuilder(String title, String message, long taskID) {
+
+        Intent intent = new Intent(context, EditTask.class);
+        intent.putExtra("TaskID",taskID);
+        Log.wtf("TaskID = ", " " + taskID);
         return new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.attachment_icon)
                 .setContentTitle(title)
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(PendingIntent.getActivity(context, (int)taskID, intent, PendingIntent.FLAG_UPDATE_CURRENT))
                 .setAutoCancel(true);
     }
 
-    public void notify(NotificationCompat.Builder builder, int notificationId) {
+    public void notify(NotificationCompat.Builder builder, long notificationId) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(notificationId, builder.build());
+        notificationManager.notify( (int) notificationId, builder.build());
     }
 
     public void scheduleNotification(String title, String message, long delayMillis, long notificationId) {
@@ -73,9 +81,9 @@ public class NotificationHelper {
         WorkManager.getInstance(context).cancelAllWorkByTag(String.valueOf(notificationId));
     }
 
-    public void showNotification(String title, String message, int notificationId) {
-        NotificationCompat.Builder builder = getNotificationBuilder(title, message);
-        notify(builder, notificationId);
+    public void showNotification(String title, String message, long notificationId) {
+        NotificationCompat.Builder builder = getNotificationBuilder(title, message,notificationId);
+        notify(builder, (int)notificationId);
     }
 
 
